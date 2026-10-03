@@ -15,7 +15,8 @@ $_SESSION = [];
 $pdo = db();
 if (in_array('--fresh', $argv, true)) {
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
-    foreach (['login_failures', 'audit_log', 'households', 'staff', 'vehicles', 'villages', 'wards', 'collectors', 'users', 'districts'] as $t) {
+    foreach (['annual_reports', 'waste_pickers', 'complaints', 'actions', 'inspections', 'meetings', 'waste_entries', 'documents', 'facilities', 'counters',
+        'login_failures', 'audit_log', 'households', 'staff', 'vehicles', 'villages', 'wards', 'collectors', 'users', 'districts'] as $t) {
         $pdo->exec("DROP TABLE IF EXISTS `$t`");
     }
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');

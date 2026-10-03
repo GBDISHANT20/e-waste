@@ -17,6 +17,7 @@ page_start('Login', '', true);
 <h1>SWM Portal</h1>
 <p class="muted">Solid Waste Management – district garbage collection management</p>
 <div class="tabs"><a class="active" href="login.php">Login</a><a href="register.php">Citizen sign-up</a></div>
+<p class="center"><a class="btn secondary" href="report-issue.php">Report a garbage problem (no login)</a></p>
 <div class="card">
   <form method="post" class="stack" autocomplete="on">
     <?= csrf_field() ?>

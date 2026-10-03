@@ -27,6 +27,9 @@ session_start();
 require __DIR__ . '/helpers.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/scope.php';
+require __DIR__ . '/files.php';
+require __DIR__ . '/compliance.php';
+require __DIR__ . '/workflow.php';
 require __DIR__ . '/layout.php';
 
 set_exception_handler(function (Throwable $e): void {

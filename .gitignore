@@ -2,3 +2,5 @@ config.local.php
 *.log
 .DS_Store
 *.zip
+storage/uploads/*
+!storage/uploads/.gitkeep

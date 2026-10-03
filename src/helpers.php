@@ -198,3 +198,82 @@ function ward_label(array $w): string
 {
     return $w['city'] . ' – Ward ' . $w['ward_no'] . (!empty($w['ward_name']) ? ' (' . $w['ward_name'] . ')' : '');
 }
+
+// ---------- more validators ----------
+function v_date(mixed $v, string $label, bool $required = true, ?string $min = null, ?string $max = null): ?string
+{
+    $s = is_string($v) ? trim($v) : '';
+    if ($s === '') {
+        if ($required) throw new UserError("$label is required");
+        return null;
+    }
+    $d = DateTime::createFromFormat('!Y-m-d', $s);
+    if (!$d || $d->format('Y-m-d') !== $s) throw new UserError("$label is not a valid date");
+    if ($min !== null && $s < $min) throw new UserError("$label cannot be before " . $min);
+    if ($max !== null && $s > $max) throw new UserError("$label cannot be after " . $max);
+    return $s;
+}
+/** Non-negative number with up to 2 decimals (quantities in kg / tonnes). */
+function v_dec(mixed $v, string $label, bool $required = false, float $max = 9999999.0): ?string
+{
+    $s = is_string($v) ? trim($v) : '';
+    if ($s === '') {
+        if ($required) throw new UserError("$label is required");
+        return null;
+    }
+    if (!preg_match('/^[0-9]{1,7}(\.[0-9]{1,2})?$/', $s) || (float) $s > $max) throw new UserError("$label must be a number (up to 2 decimals)");
+    return $s;
+}
+/** Latitude/longitude pair; both or neither. Returns [lat, lng] (strings or null). */
+function v_coords(mixed $lat, mixed $lng): array
+{
+    $la = is_string($lat) ? trim($lat) : '';
+    $lo = is_string($lng) ? trim($lng) : '';
+    if ($la === '' && $lo === '') return [null, null];
+    if ($la === '' || $lo === '' || !is_numeric($la) || !is_numeric($lo) || abs((float) $la) > 90 || abs((float) $lo) > 180)
+        throw new UserError('Location must have a valid latitude (-90..90) and longitude (-180..180)');
+    return [number_format((float) $la, 6, '.', ''), number_format((float) $lo, 6, '.', '')];
+}
+function ymd(string $d): string { return date('d-m-Y', strtotime($d)); }
+function today(): string { return date('Y-m-d'); }
+
+// ---------- running numbers: SWM/BWN/2026/00001 ----------
+function next_number(int $districtId, string $kind, ?int $year = null): int
+{
+    $year ??= (int) date('Y');
+    q('INSERT INTO counters (district_id, kind, yr, last_no) VALUES (?,?,?,LAST_INSERT_ID(1))
+       ON DUPLICATE KEY UPDATE last_no = LAST_INSERT_ID(last_no + 1)', [$districtId, $kind, $year]);
+    return last_id();
+}
+
+// ---------- labels for the new modules ----------
+const FACILITY_TYPES = [
+    'MRF' => 'MRF', 'COMPOST_PLANT' => 'Compost plant', 'VERMICOMPOST' => 'Vermicompost', 'BIOMETHANATION' => 'Biomethanation',
+    'RDF' => 'RDF facility', 'WASTE_TO_ENERGY' => 'Waste-to-energy', 'RECYCLING' => 'Recycling facility',
+    'TRANSFER_STATION' => 'Transfer station', 'LANDFILL' => 'Landfill', 'LEGACY_SITE' => 'Legacy waste site',
+    'OPEN_DUMP' => 'Open dumping point', 'OPEN_BURNING' => 'Open burning point', 'OTHER' => 'Other',
+];
+const FACILITY_STATUSES = ['OPERATIONAL' => 'Operational', 'NON_OPERATIONAL' => 'Not operational', 'UNDER_CONSTRUCTION' => 'Under construction'];
+const DOC_CATEGORIES = [
+    'LAND' => 'Land document', 'AUTHORIZATION' => 'Authorization', 'CONSENT' => 'Consent', 'EC' => 'Environmental clearance',
+    'AGREEMENT' => 'Agreement', 'DPR' => 'DPR', 'LAYOUT' => 'Layout', 'INSPECTION_REPORT' => 'Inspection report',
+    'ORDER' => 'Government order', 'ACTION_PLAN' => 'SWM action plan', 'REPORT' => 'Report', 'PHOTO' => 'Photograph', 'OTHER' => 'Other',
+];
+const REVIEW_PARAMETERS = [
+    'Segregation', 'Collection', 'Sorting', 'Transportation', 'Processing', 'Treatment', 'Disposal',
+    'MRF performance', 'Landfill', 'Legacy waste', 'Waste picker integration', 'Complaints', 'Environmental compliance',
+];
+const INSPECTION_CHECKLIST = [
+    'segregation' => 'Source segregation', 'd2d' => 'Door-to-door collection', 'covered' => 'Covered transportation',
+    'mrf' => 'MRF functioning', 'processing' => 'Processing', 'disposal' => 'Disposal', 'dumping' => 'No open dumping',
+    'burning' => 'No open burning', 'ppe' => 'Worker PPE', 'authorization' => 'Facility authorization', 'environment' => 'Environmental compliance',
+];
+const ACTION_STATUSES = ['PENDING' => 'Pending', 'SUBMITTED' => 'Submitted – verification due', 'VERIFIED' => 'Verified', 'CLOSED' => 'Closed'];
+const COMPLAINT_CATEGORIES = [
+    'GARBAGE_NOT_COLLECTED' => 'Garbage not collected', 'OPEN_DUMPING' => 'Open dumping', 'OPEN_BURNING' => 'Open burning',
+    'PLASTIC_DUMPING' => 'Plastic dumping', 'MIXED_WASTE' => 'Mixed waste', 'OVERFLOWING_BIN' => 'Overflowing garbage',
+    'MRF_ISSUE' => 'MRF issue', 'DRAIN_WASTE' => 'Waste in drain', 'OTHER' => 'Other',
+];
+const COMPLAINT_STATUSES = ['RECEIVED' => 'Received', 'ASSIGNED' => 'Assigned', 'ACTION_TAKEN' => 'Action taken', 'CLOSED' => 'Closed'];
+const GENDERS = ['MALE' => 'Male', 'FEMALE' => 'Female', 'OTHER' => 'Other'];
+const PICKER_STATUSES = ['REGISTERED' => 'Registered', 'PENDING' => 'Pending', 'NOT_REGISTERED' => 'Not registered'];

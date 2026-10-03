@@ -8,6 +8,7 @@ $config = [
     'db_user' => getenv('DB_USER') ?: 'swm',
     'db_pass' => getenv('DB_PASS') !== false ? getenv('DB_PASS') : '',
     'debug'   => (bool) getenv('APP_DEBUG'),
+    'storage_dir' => __DIR__ . '/../storage/uploads',   // uploaded files live OUTSIDE the web root
     'session_hours' => 12,
     'max_login_failures' => 5,
     'lockout_minutes' => 15,

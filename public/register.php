@@ -45,7 +45,7 @@ page_start('Citizen sign-up', '', true);
 <h1>SWM Portal</h1>
 <div class="tabs"><a href="login.php">Login</a><a class="active" href="register.php">Citizen sign-up</a></div>
 <div class="card">
-  <form method="post" class="stack" id="citizen-form">
+  <form method="post" class="stack" id="citizen-form" data-area-form>
     <?= csrf_field() ?>
     <?php
     f_input('name', 'Full name (house owner)', ['required' => true, 'maxlength' => 120, 'autocomplete' => 'name']);
@@ -56,7 +56,7 @@ page_start('Citizen sign-up', '', true);
 
     $wardOpts = $wardData = [];
     foreach ($wards as $w) { $wardOpts[$w['id']] = ward_label($w); $wardData[$w['id']] = ['district' => $w['district_id']]; }
-    f_select('ward_id', 'Ward', $wardOpts, ['required' => true, 'data' => $wardData, 'wrap' => 'data-for="URBAN"']);
+    f_select('ward_id', 'Ward', $wardOpts, ['data' => $wardData, 'wrap' => 'data-for="URBAN"']);
     $vOpts = $vData = [];
     foreach ($villages as $v) { $vOpts[$v['id']] = $v['name']; $vData[$v['id']] = ['district' => $v['district_id']]; }
     f_select('village_id', 'Village', $vOpts, ['data' => $vData, 'wrap' => 'data-for="RURAL"']);

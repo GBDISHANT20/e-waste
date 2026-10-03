@@ -3,15 +3,26 @@ declare(strict_types=1);
 
 function nav_for(array $u): array
 {
+    $officer = [
+        'dashboard.php' => 'Overview', 'compliance.php' => 'Compliance calendar',
+    ];
     return match ($u['role']) {
-        'STATE_ADMIN' => ['dashboard.php' => 'Overview', 'districts.php' => 'Districts', 'collectors.php' => 'District Collectors'],
-        'DISTRICT_COLLECTOR' => ['dashboard.php' => 'Overview', 'wards.php' => 'Wards & MCs', 'villages.php' => 'Villages & Sarpanches',
-            'vehicles.php' => 'Vehicles', 'staff.php' => 'Drivers & staff', 'citizens.php' => 'Citizens'],
-        'MC' => ['dashboard.php' => 'Overview', 'wards.php' => 'My wards', 'vehicles.php' => 'Vehicles',
-            'staff.php' => 'Drivers & staff', 'citizens.php' => 'Citizens'],
-        'SARPANCH' => ['dashboard.php' => 'Overview', 'villages.php' => 'My village', 'vehicles.php' => 'Vehicles',
-            'staff.php' => 'Drivers & staff', 'citizens.php' => 'Citizens'],
-        default => ['profile.php' => 'My profile'],
+        'STATE_ADMIN' => ['dashboard.php' => 'Overview', 'districts.php' => 'Districts', 'collectors.php' => 'District Collectors', 'audit.php' => 'Audit log'],
+        'DISTRICT_COLLECTOR' => $officer + [
+            'wards.php' => 'Wards & MCs', 'villages.php' => 'Villages & Sarpanches', 'vehicles.php' => 'Vehicles', 'staff.php' => 'Drivers & staff',
+            'citizens.php' => 'Citizens', 'waste.php' => 'Waste data', 'facilities.php' => 'Facilities', 'waste-pickers.php' => 'Waste pickers',
+            'inspections.php' => 'Inspections', 'meetings.php' => 'Quarterly reviews', 'actions.php' => 'Action tracker',
+            'complaints.php' => 'Complaints', 'documents.php' => 'Documents', 'map.php' => 'Map', 'reports.php' => 'Annual report', 'audit.php' => 'Audit log'],
+        'MC' => $officer + [
+            'wards.php' => 'My wards', 'vehicles.php' => 'Vehicles', 'staff.php' => 'Drivers & staff', 'citizens.php' => 'Citizens',
+            'waste.php' => 'Waste data', 'facilities.php' => 'Facilities', 'waste-pickers.php' => 'Waste pickers', 'inspections.php' => 'Inspections',
+            'meetings.php' => 'Quarterly reviews', 'actions.php' => 'Action tracker', 'complaints.php' => 'Complaints', 'map.php' => 'Map'],
+        'SARPANCH' => $officer + [
+            'villages.php' => 'My village', 'vehicles.php' => 'Vehicles', 'staff.php' => 'Drivers & staff', 'citizens.php' => 'Citizens',
+            'waste.php' => 'Waste data', 'facilities.php' => 'Facilities', 'waste-pickers.php' => 'Waste pickers', 'inspections.php' => 'Inspections',
+            'meetings.php' => 'Quarterly reviews', 'actions.php' => 'Action tracker', 'complaints.php' => 'Complaints', 'map.php' => 'Map'],
+        'STAFF' => ['profile.php' => 'My profile', 'waste.php' => 'Enter waste data'],
+        default => ['profile.php' => 'My profile', 'complaints.php' => 'Report an issue'],
     };
 }
 
@@ -63,7 +74,7 @@ function f_input(string $name, string $label, array $o = []): void
 {
     $type = $o['type'] ?? 'text';
     $attrs = '';
-    foreach (['maxlength', 'min', 'inputmode', 'placeholder', 'autocomplete', 'pattern', 'minlength'] as $a) {
+    foreach (['maxlength', 'min', 'max', 'step', 'inputmode', 'placeholder', 'autocomplete', 'pattern', 'minlength'] as $a) {
         if (isset($o[$a])) $attrs .= ' ' . $a . '="' . e($o[$a]) . '"';
     }
     $val = $type === 'password' ? '' : old($name, $o['value'] ?? '');
@@ -112,4 +123,41 @@ function render_table(array $cols, array $rows, string $empty = 'Nothing registe
 function badge(string $text, string $kind = ''): string
 {
     return '<span class="badge ' . e($kind) . '">' . e($text) . '</span>';
+}
+
+function f_textarea(string $name, string $label, array $o = []): void
+{
+    echo '<div class="field', !empty($o['wide']) ? ' wide' : '', '"><label for="f_', e($name), '">', e($label), !empty($o['required']) ? ' <span class="req">*</span>' : '', '</label>',
+        '<textarea id="f_', e($name), '" name="', e($name), '" rows="', (int) ($o['rows'] ?? 3), '"', isset($o['maxlength']) ? ' maxlength="' . (int) $o['maxlength'] . '"' : '',
+        !empty($o['required']) ? ' required' : '', '>', e(old($name, $o['value'] ?? '')), '</textarea></div>';
+}
+
+/** Photo / document upload (on phones this opens the camera when $o['camera'] is set). */
+function f_file(string $name, string $label, array $o = []): void
+{
+    $accept = !empty($o['images']) ? 'image/jpeg,image/png' : 'image/jpeg,image/png,application/pdf';
+    echo '<div class="field"><label for="f_', e($name), '">', e($label), !empty($o['required']) ? ' <span class="req">*</span>' : '', '</label>',
+        '<input id="f_', e($name), '" name="', e($name), '" type="file" accept="', $accept, '"', !empty($o['camera']) ? ' capture="environment"' : '',
+        !empty($o['required']) ? ' required' : '', '><small class="muted">JPG, PNG', !empty($o['images']) ? '' : ' or PDF', ' · max 5 MB</small></div>';
+}
+
+/** Latitude / longitude inputs with a "use my location" button (enhanced by app.js). */
+function f_geo(string $latName = 'lat', string $lngName = 'lng'): void
+{
+    echo '<fieldset class="geo wide"><legend>Location (GPS)</legend><div class="grid geo-row">';
+    f_input($latName, 'Latitude', ['inputmode' => 'decimal', 'placeholder' => '28.793000', 'maxlength' => 12]);
+    f_input($lngName, 'Longitude', ['inputmode' => 'decimal', 'placeholder' => '76.139000', 'maxlength' => 12]);
+    echo '<div class="field actions"><button type="button" class="btn small secondary" data-geo="', e($latName), '|', e($lngName), '" hidden>📍 Use my location</button></div></div></fieldset>';
+}
+
+function f_checkbox(string $name, string $label, bool $checked = false, string $value = '1'): void
+{
+    $on = isset($_POST) && is_post() ? isset($_POST[$name]) : $checked;
+    echo '<label class="check"><input type="checkbox" name="', e($name), '" value="', e($value), '"', $on ? ' checked' : '', '> ', e($label), '</label>';
+}
+
+function map_link(?string $lat, ?string $lng, string $label = 'Map'): string
+{
+    if ($lat === null || $lng === null) return '–';
+    return '<a href="https://www.openstreetmap.org/?mlat=' . e($lat) . '&amp;mlon=' . e($lng) . '#map=17/' . e($lat) . '/' . e($lng) . '" target="_blank" rel="noopener">' . e($label) . '</a>';
 }
