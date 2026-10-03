@@ -30,6 +30,23 @@ on the sign-up form; every page works without it.
      `http://localhost/e-waste/public/`). `src/`, `database/` and `tests/` are blocked by `.htaccess`
      and should never be served.
 
+### WAMP (Windows)
+
+Needs PHP **8.1 or newer** (WAMP icon → PHP → Version) and the default `pdo_mysql` extension.
+
+1. Copy this folder to `C:\wamp64\www\e-waste`.
+2. Start WAMP (icon turns green), open <http://localhost/phpmyadmin> (user `root`, empty password) and
+   create a database named `swm` with collation `utf8mb4_unicode_ci`.
+3. Copy `src\config.local.sample.php` to `src\config.local.php` and set:
+   `'db_user' => 'root'`, `'db_pass' => ''` (WAMP's default; use a real user/password on a live server).
+4. Open **Command Prompt** and run the installer with WAMP's own PHP (adjust the version folder):
+   ```bat
+   cd C:\wamp64\www\e-waste
+   set ADMIN_PASSWORD=choose-a-strong-one
+   C:\wamp64\bin\php\php8.3.0\php.exe database\install.php
+   ```
+5. Open <http://localhost/e-waste/public/> and log in with mobile `9999999999` and that password.
+
 Use HTTPS in production (the session cookie is automatically marked `Secure` on HTTPS).
 
 ## Who registers whom
