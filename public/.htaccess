@@ -1,0 +1,5 @@
+# Apache: hide directory listings and PHP version; everything else is plain PHP pages.
+Options -Indexes
+<IfModule mod_headers.c>
+  Header always unset X-Powered-By
+</IfModule>

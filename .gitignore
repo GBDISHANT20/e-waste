@@ -1,3 +1,3 @@
-node_modules/
-data/*.db
-data/*.db-*
+config.local.php
+*.log
+.DS_Store
