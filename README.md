@@ -94,3 +94,7 @@ annual report, citizen complaints, mobile app.
 
 **Shortcut on WAMP:** after copying the folder to `...\wamp\www\e-waste` and starting WAMP, just double-click
 `install-wamp.bat` – it creates the database, the config file and the admin account.
+
+**No command line at all:** in phpMyAdmin create the database `swm`, open it, choose *Import* and import
+`database/phpmyadmin-import.sql`. This creates all tables plus the State Admin (mobile `9999999999`,
+temporary password `ChangeMe@123`, changed at first login). Then open `http://localhost/e-waste/public/`.
