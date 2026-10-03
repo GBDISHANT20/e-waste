@@ -91,3 +91,6 @@ php tests/run.php          # ~50 end-to-end checks over real HTTP (php built-in 
 
 Daily waste data entry, inspections, quarterly review, action tracker, GIS map, compliance calendar,
 annual report, citizen complaints, mobile app.
+
+**Shortcut on WAMP:** after copying the folder to `...\wamp\www\e-waste` and starting WAMP, just double-click
+`install-wamp.bat` – it creates the database, the config file and the admin account.
